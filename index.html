@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南亞數位金融：智慧行為激勵與反欺詐決策引擎模擬器</title>
+    <style>
+        /* ==========================================================================
+           100% 離線相容純 CSS 樣式表 (與網路完全去耦合，保證 Live Server 永不跑版)
+           ========================================================================== */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-darker: #020617;
+            --border-color: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --color-blue: #3b82f6;
+            --color-emerald: #10b981;
+            --color-amber: #f59e0b;
+            --color-pink: #ec4899;
+            --color-rose: #f43f5e;
+            --font-main: 'Noto Sans TC', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 頂部導覽列 */
+        header {
+            background-color: #0f172a;
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-fintech {
+            background-color: var(--color-blue);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.25rem;
+            letter-spacing: 1px;
+        }
+
+        .title-text h1 {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 0.5px;
+        }
+
+        .title-text p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            background-color: #1e293b;
+            border: 1px solid #475569;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            color: #cbd5e1;
+        }
+
+        /* 主要操作區 */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            flex-grow: 1;
+        }
+
+        @media (min-width: 1024px) {
+            main {
+                grid-template-columns: 5fr 7fr;
+            }
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        /* 帳戶切換器 */
+        .user-switcher {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            width: 100%;
+            max-width: 360px;
+            margin-bottom: 16px;
+        }
+
+        .btn-switch {
+            padding: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-card);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-switch:hover {
+            background-color: #334155;
+            color: white;
+        }
+
+        .btn-switch.active {
+            background: linear-gradient(to right, #2563eb, #4f46e5);
+            border-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        /* 模擬手機外殼 */
+        .phone-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 340px;
+            aspect-ratio: 9 / 18.5;
+            background-color: #020617;
+            border-radius: 40px;
+            padding: 12px;
+            border: 4px solid #334155;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 22px;
+            background-color: #020617;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 4px;
+        }
+
+        .phone-speaker {
+            width: 60px;
+            height: 4px;
+            background-color: #1e293b;
+            border-radius: 9999px;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background-color: #0f172a;
+            border-radius: 30px;
+            overflow-y: auto;
+            padding: 24px 16px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: background-color 0.5s ease;
+        }
+
+        .phone-screen::-webkit-scrollbar {
+            width: 4px;
+        }
+        .phone-screen::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 4px;
+        }
+
+        /* App 內部組件 */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .app-logo {
+            font-weight: bold;
+            color: var(--color-blue);
+        }
+
+        .app-conn-type {
+            font-size: 10px;
+            background-color: var(--bg-card);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: #cbd5e1;
+        }
+
+        /* 錢包卡片 */
+        .wallet-card {
+            background: linear-gradient(to bottom right, #1e293b, #020617);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .wallet-card-bg-glow {
+            position: absolute;
+            right: -24px;
+            bottom: -24px;
+            width: 96px;
+            height: 96px;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+            filter: blur(24px);
+        }
+
+        .wallet-card-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+        }
+
+        .wallet-card-balance {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            margin-top: 4px;
+        }
+
+        .wallet-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .meta-value-blue { color: var(--color-blue); font-weight: bold; }
+        .meta-value-emerald { color: var(--color-emerald); font-weight: bold; }
+
+        /* 交易按鈕區 */
+        .app-section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 20px 0 8px 0;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .action-btn {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 105px;
+        }
+
+        .action-btn:hover {
+            background-color: #334155;
+            border-color: #475569;
+        }
+
+        .action-emoji { font-size: 1.125rem; }
+        .action-title { font-size: 0.75rem; font-weight: bold; color: white; margin-top: 8px; }
+        .action-desc { font-size: 9px; color: var(--text-secondary); margin-top: 2px; }
+        .action-val { font-size: 0.625rem; font-weight: bold; margin-top: 4px; }
+        .action-val-blue { color: var(--color-blue); }
+        .action-val-emerald { color: var(--color-emerald); }
+        .action-val-amber { color: var(--color-amber); }
+        .action-val-pink { color: var(--color-pink); }
+
+        /* 促銷版面 */
+        .promo-banner {
+            border-radius: 12px;
+            padding: 12px;
+            min-height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .promo-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+
+        .promo-title { font-size: 0.75rem; font-weight: bold; color: white; margin-top: 8px; }
+        .promo-desc { font-size: 9px; color: #cbd5e1; margin-top: 2px; }
+
+        /* 手機底部 */
+        .phone-footer {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        /* ----------------------------------------------------
+           右側控制台樣式
+           ---------------------------------------------------- */
+        .panel-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel-card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px;
+        }
+
+        .panel-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .panel-card-title {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot-pulse {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--color-blue);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        .user-name-badge {
+            font-size: 0.75rem;
+            background-color: #172554;
+            color: #93c5fd;
+            border: 1px solid #1e3a8a;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* 11維特徵網格 */
+        .feat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .feat-item {
+            background-color: var(--bg-darker);
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            font-family: var(--font-code);
+            font-size: 10px;
+        }
+
+        .feat-label { color: var(--text-secondary); }
+        .feat-val { font-weight: bold; color: var(--color-blue); }
+
+        /* 距離即時計算區 */
+        .dist-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 768px) {
+            .dist-section {
+                grid-template-columns: 5fr 7fr;
+            }
+        }
+
+        .dist-col-left {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .cluster-result-box {
+            background-color: var(--bg-darker);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            margin-top: 12px;
+        }
+
+        .cluster-result-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+        }
+
+        .cluster-result-val {
+            font-size: 0.875rem;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+
+        .cluster-result-val.vip { color: var(--color-blue); }
+        .cluster-result-val.daily { color: var(--color-emerald); }
+        .cluster-result-val.sleepy { color: var(--color-amber); }
+
+        /* 距離條卡片 */
+        .dist-col-right {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .dist-card {
+            background-color: var(--bg-darker);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .dist-card.active {
+            background-color: var(--bg-card);
+            border: 2px solid var(--color-blue);
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+
+        .dist-info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-bottom: 4px;
+        }
+
+        .dist-bar-bg {
+            width: 100%;
+            background-color: #334155;
+            height: 6px;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .dist-bar-fill {
+            height: 100%;
+            transition: all 0.5s ease;
+        }
+
+        .dist-bar-fill.vip { background-color: var(--color-blue); }
+        .dist-bar-fill.daily { background-color: var(--color-emerald); }
+        .dist-bar-fill.sleepy { background-color: var(--color-amber); }
+
+        /* 決策日誌 */
+        .log-panel {
+            display: flex;
+            flex-direction: column;
+            height: 200px;
+        }
+
+        .log-box {
+            background-color: var(--bg-darker);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            font-family: var(--font-code);
+            font-size: 10px;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 150px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .log-item {
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .log-time { color: #64748b; }
+
+        /* ----------------------------------------------------
+           MGM 彈出沙盒模態框
+           ---------------------------------------------------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            max-width: 480px;
+            width: 100%;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .modal-title h3 { font-size: 1rem; font-weight: bold; color: white; }
+        .modal-title p { font-size: 10px; color: var(--text-secondary); }
+
+        .modal-rule-box {
+            background-color: var(--bg-darker);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            font-size: 11px;
+            line-height: 1.5;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+
+        .rule-highlight { color: var(--color-pink); font-weight: bold; }
+
+        /* 沙盒控制台 */
+        .sandbox-console {
+            background-color: var(--bg-darker);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sandbox-status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sandbox-status-label { font-size: 0.75rem; color: #cbd5e1; font-weight: bold; }
+        
+        .sandbox-status-badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        .sandbox-status-badge.locked {
+            background-color: #450a0a;
+            color: #fca5a5;
+            border: 1px solid #991b1b;
+        }
+        .sandbox-status-badge.unlocked {
+            background-color: #064e3b;
+            color: #6ee7b7;
+            border: 1px solid #065f46;
+        }
+
+        .progress-label-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .sandbox-progress-bar-bg {
+            width: 100%;
+            background-color: #334155;
+            height: 8px;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .sandbox-progress-bar-fill {
+            height: 100%;
+            background-color: var(--color-pink);
+            transition: all 0.3s ease;
+            width: 0%;
+        }
+
+        /* 模擬挑戰按鈕 */
+        .sandbox-btn-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .sandbox-btn {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 10px 8px;
+            font-size: 10px;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .sandbox-btn:hover { background-color: #334155; }
+        .sandbox-btn.disabled {
+            background-color: var(--bg-darker) !important;
+            color: #475569 !important;
+            border-color: #1e293b !important;
+            cursor: not-allowed !important;
+        }
+
+        .sandbox-logs-box {
+            background-color: #020617;
+            border-radius: 4px;
+            padding: 10px;
+            border: 1px solid #1e293b;
+            font-family: var(--font-code);
+            font-size: 10px;
+            min-height: 50px;
+            max-height: 80px;
+            overflow-y: auto;
+            color: #94a3b8;
+        }
+
+        .sandbox-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .btn-action-outline {
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-action-outline:hover { color: white; }
+
+        .btn-action-close {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 6px 16px;
+            font-size: 12px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-action-close:hover { background-color: #334155; }
+
+        /* 頁腳 */
+        footer {
+            background-color: #020617;
+            border-top: 1px solid #0f172a;
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 11px;
+            color: #475569;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- 頂部導覽列 -->
+    <header>
+        <div class="header-container">
+            <div class="logo-area">
+                <div class="badge-fintech">FinTech</div>
+                <div class="title-text">
+                    <h1>南亞數位錢包：智慧客群行為激勵與反欺詐決策引擎模擬器</h1>
+                    <p>學術交叉驗證研究成果展示 —— 基於 PayTM 與 Khalti 11維全特徵矩陣優化</p>
+                </div>
+            </div>
+            <div class="status-badge">
+                期末發表專用系統原型 • <span style="color: #10b981; font-weight: 600;">運作狀態：100%</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要操作區 -->
+    <main>
+        
+        <!-- 左側：手機模擬器區 -->
+        <section style="display: flex; flex-direction: column; align-items: center;">
+            <h2 class="section-title">【前台展示】手機用戶端 App 模擬畫面</h2>
+            
+            <!-- 帳戶切換器 -->
+            <div class="user-switcher">
+                <button onclick="switchUser('vip')" id="btn-vip" class="btn-switch active">
+                    User A (VIP)
+                </button>
+                <button onclick="switchUser('daily')" id="btn-daily" class="btn-switch">
+                    User B (日常)
+                </button>
+                <button onclick="switchUser('sleepy')" id="btn-sleepy" class="btn-switch">
+                    User C (沉睡)
+                </button>
+            </div>
+
+            <!-- 模擬手機外殼 -->
+            <div class="phone-wrapper">
+                <!-- 手機頂部聽筒 -->
+                <div class="phone-notch">
+                    <div class="phone-speaker"></div>
+                </div>
+
+                <!-- 手機畫面內部 -->
+                <div id="phone-screen" class="phone-screen">
+                    
+                    <!-- App 頂部狀態列 -->
+                    <div class="app-header">
+                        <span id="app-logo" class="app-logo">PayTM 🇮🇳</span>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span id="connection-type" class="app-conn-type">UPI 連線中</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+
+                    <!-- 錢包卡片與餘額展示 -->
+                    <div style="margin-top: 8px;">
+                        <div class="wallet-card">
+                            <div class="wallet-card-bg-glow"></div>
+                            <p class="wallet-card-title">Wallet Account Balance</p>
+                            <h3 id="display-balance" class="wallet-card-balance">₹ 24,500.00</h3>
+                            <div class="wallet-card-meta">
+                                <span>帳戶類型: <strong id="user-tier" class="meta-value-blue">Premium VIP</strong></span>
+                                <span>LTV 等級: <strong id="user-ltv" class="meta-value-emerald">LTV 破百萬</strong></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 核心操作場景按鈕區 -->
+                    <div>
+                        <p class="app-section-label">實務金融操作模擬</p>
+                        <div class="action-grid">
+                            <!-- 操作 A：大額跨境匯款 -->
+                            <button onclick="triggerTransaction(40000, 'CrossBorder')" class="action-btn">
+                                <span class="action-emoji"></span>
+                                <div>
+                                    <h4 class="action-title">大額跨境轉帳</h4>
+                                    <p class="action-desc">模擬匯款至加德滿都</p>
+                                    <p class="action-val action-val-blue">₹ 40,000</p>
+                                </div>
+                            </button>
+                            <!-- 操作 B：日常小額消費 -->
+                            <button onclick="triggerTransaction(100, 'UPI_Pay')" class="action-btn">
+                                <span class="action-emoji"></span>
+                                <div>
+                                    <h4 class="action-title">路邊掃碼付款</h4>
+                                    <p class="action-desc">模擬路邊購買拉茶</p>
+                                    <p class="action-val action-val-emerald">₹ 100</p>
+                                </div>
+                            </button>
+                            <!-- 操作 C：大額繳電費 -->
+                            <button onclick="triggerTransaction(12000, 'Electricity')" class="action-btn">
+                                <span class="action-emoji"></span>
+                                <div>
+                                    <h4 class="action-title">大額公共規費</h4>
+                                    <p class="action-desc">繳交年度空調電費</p>
+                                    <p class="action-val action-val-amber">₹ 12,000</p>
+                                </div>
+                            </button>
+                            <!-- 操作 D：好友推介MGM機制 -->
+                            <button onclick="openMGMModal()" class="action-btn" style="position: relative;">
+                                <div style="position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; background-color: var(--color-rose); border-radius: 50%;"></div>
+                                <span class="action-emoji"></span>
+                                <div>
+                                    <h4 class="action-title">MGM 好友推薦</h4>
+                                    <p class="action-desc">測試推薦反套利引擎</p>
+                                    <p class="action-val action-val-pink">₹ 50 獎勵挑戰</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- App 促銷Banner與交叉銷售區 -->
+                    <div style="margin-top: 16px; flex-grow: 1;">
+                        <p class="app-section-label">系統推薦行銷版面</p>
+                        <div id="promo-banner" class="promo-banner">
+                            <!-- 動態渲染處 -->
+                        </div>
+                    </div>
+
+                    <!-- 手機底部導覽條 -->
+                    <div class="phone-footer">
+                        <span style="color: var(--color-blue); font-weight: bold;">● 首頁</span>
+                        <span>歷史帳單</span>
+                        <span>客服中心</span>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 右側：後台與決策控制台區 -->
+        <section class="panel-container">
+            <h2 class="section-title" style="text-align: left;">【後台監控】機器學習分群與決策引擎控制台</h2>
+
+            <!-- 1. 當前用戶的 11 維特徵向量 -->
+            <div class="panel-card">
+                <div class="panel-card-header">
+                    <h3 class="panel-card-title">
+                        <span class="dot-pulse"></span>
+                        一、 當前用戶 11 維標準化特徵向量即時數據
+                    </h3>
+                    <span id="current-user-name" class="user-name-badge">User: Deepak (VIP)</span>
+                </div>
+                <div class="feat-grid">
+                    <div class="feat-item"><span class="feat-label">年齡(Age):</span> <span id="feat-age" class="feat-val">42.5 歲</span></div>
+                    <div class="feat-item"><span class="feat-label">總次數(Trans):</span> <span id="feat-trans" class="feat-val">721 次</span></div>
+                    <div class="feat-item"><span class="feat-label">客單價(AvgV):</span> <span id="feat-avgv" class="feat-val">₹15,060</span></div>
+                    <div class="feat-item"><span class="feat-label">總消費(Spent):</span> <span id="feat-spent" class="feat-val">₹10.68M</span></div>
+                    <div class="feat-item"><span class="feat-label">活躍天數(ActD):</span> <span id="feat-actd" class="feat-val">180 天</span></div>
+                    <div class="feat-item"><span class="feat-label">流失天數(LastD):</span> <span id="feat-lastd" class="feat-val">181 天</span></div>
+                    <div class="feat-item"><span class="feat-label">回饋金(CashB):</span> <span id="feat-cashb" class="feat-val">₹2,482</span></div>
+                    <div class="feat-item"><span class="feat-label">客訴次數(Ticket):</span> <span id="feat-ticket" class="feat-val">2 次</span></div>
+                    <div class="feat-item"><span class="feat-label">點數(Loyalty):</span> <span id="feat-loyalty" class="feat-val">1530 點</span></div>
+                    <div class="feat-item"><span class="feat-label">滿意度(Satis):</span> <span id="feat-satis" class="feat-val">5.55 分</span></div>
+                    <div class="feat-item"><span class="feat-label">推介人(Refer):</span> <span id="feat-refer" class="feat-val">20 人</span></div>
+                    <div class="feat-item" style="background-color: #172554; border-color: #1e3a8a;"><span style="color: #93c5fd;">LTV(目標值):</span> <span id="feat-ltv" style="color: var(--color-emerald); font-weight: bold;">₹1.08M</span></div>
+                </div>
+            </div>
+
+            <!-- 2. K-Means 歐氏幾何距離即時運算中心 -->
+            <div class="panel-card dist-section">
+                <div class="dist-col-left">
+                    <div>
+                        <h3 class="panel-card-title" style="font-size: 0.75rem;">
+                            二、 歐氏幾何距離即時運算中心
+                        </h3>
+                    </div>
+                    <div class="cluster-result-box">
+                        <span class="cluster-result-label">K-Means 分配標籤 (argmin)</span>
+                        <div id="engine-cluster-badge" class="cluster-result-val vip">Cluster 1 (核心 VIP 客群)</div>
+                    </div>
+                </div>
+                <!-- 距離條 -->
+                <div class="dist-col-right">
+                    <!-- Cluster 1 VIP -->
+                    <div class="dist-card" id="card-dist-vip">
+                        <div class="dist-info-row">
+                            <span style="font-weight: bold;">到 Cluster 1 質心 (VIP) 的距離:</span>
+                            <span id="val-dist-vip" style="color: var(--color-blue); font-weight: bold; font-family: var(--font-code);">0.0000</span>
+                        </div>
+                        <div class="dist-bar-bg">
+                            <div id="bar-dist-vip" class="dist-bar-fill vip" style="width: 5%"></div>
+                        </div>
+                    </div>
+                    <!-- Cluster 2 Daily -->
+                    <div class="dist-card" id="card-dist-daily">
+                        <div class="dist-info-row">
+                            <span style="font-weight: bold;">到 Cluster 2 質心 (日常) 的距離:</span>
+                            <span id="val-dist-daily" style="color: var(--text-secondary); font-weight: bold; font-family: var(--font-code);">4.5218</span>
+                        </div>
+                        <div class="dist-bar-bg">
+                            <div id="bar-dist-daily" class="dist-bar-fill daily" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <!-- Cluster 0 Churn -->
+                    <div class="dist-card" id="card-dist-sleepy">
+                        <div class="dist-info-row">
+                            <span style="font-weight: bold;">到 Cluster 0 質心 (沉睡) 的距離:</span>
+                            <span id="val-dist-sleepy" style="color: var(--text-secondary); font-weight: bold; font-family: var(--font-code);">6.1287</span>
+                        </div>
+                        <div class="dist-bar-bg">
+                            <div id="bar-dist-sleepy" class="dist-bar-fill sleepy" style="width: 90%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 後台決策日誌與合約代碼追蹤 -->
+            <div class="panel-card log-panel">
+                <h3 class="panel-card-title" style="margin-bottom: 8px; justify-content: space-between; width: 100%;">
+                    <span>三、 智慧補貼與反欺詐決策日誌</span>
+                    <button onclick="clearLogs()" class="btn-action-outline">清除日誌</button>
+                </h3>
+                <div id="decision-logs" class="log-box">
+                    <!-- 日誌印出處 -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- MGM 好友推薦挑戰 Modal 彈窗 (反套利沙盒模擬) -->
+    <div id="mgm-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button onclick="closeMGMModal()" class="modal-close-btn">×</button>
+            
+            <div class="modal-header">
+                <span style="font-size: 1.5rem;">🤝</span>
+                <div class="modal-title">
+                    <h3>方案二：MGM 好友推薦「反欺詐防禦挑戰」沙盒模擬</h3>
+                    <p>對決推薦人數負相關（-0.02）與回饋金黑洞的代碼防護機制</p>
+                </div>
+            </div>
+
+            <!-- 機制說明 -->
+            <div class="modal-rule-box">
+                <span class="rule-highlight">代碼防護規則：</span> 推薦好友註冊後，老客戶與新朋友的 <b>₹ 50 獎勵會先「凍結」</b>。新朋友必須在 <b>14天內完成 3 筆消費且累計金額達 ₹ 500 </b>，雙方獎勵才會解鎖提現，直接過濾套利殭屍人頭。
+            </div>
+
+            <!-- 沙盒模擬控制台 -->
+            <div class="sandbox-console">
+                <div class="sandbox-status-row">
+                    <span class="sandbox-status-label">新好友 (User C) 的新手任務挑戰進度：</span>
+                    <span id="sandbox-status" class="sandbox-status-badge locked">獎勵凍結中</span>
+                </div>
+
+                <!-- 進度條 -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <div class="progress-label-row">
+                        <span>累積金額進度 (目標 ₹500)：</span>
+                        <span id="sandbox-progress-text" style="color: white; font-weight: bold;">₹ 0 / 500</span>
+                    </div>
+                    <div class="sandbox-progress-bar-bg">
+                        <div id="sandbox-progress-bar" class="sandbox-progress-bar-fill"></div>
+                    </div>
+                </div>
+
+                <!-- 模擬新好友消費行為按鈕 -->
+                <div class="sandbox-btn-grid">
+                    <button id="btn-challenge-1" onclick="simulateFriendSpend(100, '地鐵乘車扣款')" class="sandbox-btn">
+                        筆1：地鐵扣款<br><span style="color: var(--color-pink);">₹ 100</span>
+                    </button>
+                    <button id="btn-challenge-2" onclick="simulateFriendSpend(160, '合作超商付款')" class="sandbox-btn">
+                        筆2：超商付款<br><span style="color: var(--color-pink);">₹ 160</span>
+                    </button>
+                    <button id="btn-challenge-3" onclick="simulateFriendSpend(320, '電信手機儲值')" class="sandbox-btn">
+                        筆3：手機儲值<br><span style="color: var(--color-pink);">₹ 320</span>
+                    </button>
+                </div>
+
+                <!-- 新手軌跡 log -->
+                <div class="sandbox-logs-box" id="sandbox-logs">
+                    [系統] 等待新好友發起日常消費挑戰軌跡...
+                </div>
+            </div>
+
+            <!-- 重置沙盒 -->
+            <div class="sandbox-footer">
+                <button onclick="resetSandbox()" class="btn-action-outline">重置模擬器</button>
+                <button onclick="closeMGMModal()" class="btn-action-close">關閉畫面</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部資訊列 -->
+    <footer>
+        南亞數位錢包學術與商務研究專案成員：劉姮妤、黃齡瑋、蘇歆倫• 2026 期末發表專用
+    </footer>
+
+    <!-- 💡 JavaScript 核心運算與決策代碼 -->
+    <script>
+        // 1. 三個典型客群在 11 維全特徵空間中的 K-Means 質心數據 (來自第二組真實分群結果)
+        const centroids = {
+            sleepy: { // Cluster 0
+                Age: 41.38, Total_Transactions: 204.30, Avg_Transaction_Value: 10216.18, 
+                Total_Spent: 2157768.28, Active_Days: 179.81, Last_Transaction_Days_Ago: 186.75, 
+                Loyalty_Points_Earned: 1100, Referral_Count: 5, Cashback_Received: 2480.57, 
+                Support_Tickets_Raised: 8, Customer_Satisfaction_Score: 5.46, LTV: 227478.83
+            },
+            vip: { // Cluster 1
+                Age: 42.53, Total_Transactions: 721.00, Avg_Transaction_Value: 15059.79, 
+                Total_Spent: 10682750.30, Active_Days: 179.72, Last_Transaction_Days_Ago: 181.38, 
+                Loyalty_Points_Earned: 4500, Referral_Count: 20, Cashback_Received: 2481.97, 
+                Support_Tickets_Raised: 2, Customer_Satisfaction_Score: 5.55, LTV: 1080007.77
+            },
+            daily: { // Cluster 2
+                Age: 44.31, Total_Transactions: 662.40, Avg_Transaction_Value: 4676.53, 
+                Total_Spent: 3097212.80, Active_Days: 186.74, Last_Transaction_Days_Ago: 182.58, 
+                Loyalty_Points_Earned: 1500, Referral_Count: 3, Cashback_Received: 2530.62, 
+                Support_Tickets_Raised: 4, Customer_Satisfaction_Score: 5.43, LTV: 321443.65
+            }
+        };
+
+        // 2. 當前模擬之特徵向量 state
+        let currentUser = 'vip';
+        let userFeatures = { ...centroids.vip };
+        let currentBalance = 124500.00;
+
+        // 3. 初始化載入
+        window.onload = function() {
+            switchUser('vip');
+            addLog("K-Means 決策引擎啟動成功。11維標準化幾何空間特徵座標矩陣載入完畢。");
+            addLog("經 K 值決策，肘部法最佳收斂參數設定為 K = 3。全自動補貼清算系統部署完畢。");
+        };
+
+        // 4. 切換用戶邏輯
+        function switchUser(type) {
+            currentUser = type;
+            userFeatures = { ...centroids[type] };
+
+            // 調整餘額與手機畫布
+            const screen = document.getElementById('phone-screen');
+            const logo = document.getElementById('app-logo');
+            const tierBadge = document.getElementById('user-tier');
+            const ltvBadge = document.getElementById('user-ltv');
+            const connType = document.getElementById('connection-type');
+
+            // 移除舊按鈕樣式
+            ['vip', 'daily', 'sleepy'].forEach(t => {
+                const b = document.getElementById(`btn-${t}`);
+                b.className = "btn-switch";
+            });
+            // 亮起新按鈕
+            document.getElementById(`btn-${type}`).className = "btn-switch active";
+
+            if (type === 'vip') {
+                currentBalance = 124500.00;
+                logo.innerText = "PayTM 🇮🇳";
+                logo.style.color = "var(--color-blue)";
+                tierBadge.innerText = "Premium VIP";
+                tierBadge.className = "meta-value-blue";
+                ltvBadge.innerText = "LTV 破百萬";
+                ltvBadge.className = "meta-value-emerald";
+                connType.innerText = "UPI 連線中";
+                document.getElementById('current-user-name').innerText = "User: Deepak (VIP潛力客)";
+                renderVIPPromo();
+            } else if (type === 'daily') {
+                currentBalance = 4320.00;
+                logo.innerText = "Khalti 🇳🇵";
+                logo.style.color = "var(--color-emerald)";
+                tierBadge.innerText = "日常普惠帳戶";
+                tierBadge.className = "meta-value-blue";
+                ltvBadge.innerText = "LTV 中等潛力";
+                ltvBadge.className = "meta-value-emerald";
+                connType.innerText = "Wallet Balance";
+                document.getElementById('current-user-name').innerText = "User: Anjali (高頻流量客)";
+                renderDailyPromo();
+            } else {
+                currentBalance = 38000.00;
+                logo.innerText = "Khalti 🇳🇵";
+                logo.style.color = "var(--color-amber)";
+                tierBadge.innerText = "特定繳費剛需帳戶";
+                tierBadge.className = "meta-value-blue";
+                ltvBadge.innerText = "流失風險極高";
+                ltvBadge.className = "meta-value-emerald";
+                connType.innerText = "Wallet Balance";
+                document.getElementById('current-user-name').innerText = "User: Rajesh (沉睡大額客)";
+                renderSleepyPromo();
+            }
+
+            updateUI();
+            addLog(`切換至 ${document.getElementById('current-user-name').innerText}。重置多維向量並即時重算距離。`);
+        }
+
+        // 5. 歐幾里得距離即時運算
+        function updateUI() {
+            // 更新餘額
+            document.getElementById('display-balance').innerText = `₹ ${currentBalance.toLocaleString('zh-TW', { minimumFractionDigits: 2 })}`;
+
+            // 更新11維度欄位數值
+            document.getElementById('feat-age').innerText = `${userFeatures.Age.toFixed(1)} 歲`;
+            document.getElementById('feat-trans').innerText = `${Math.round(userFeatures.Total_Transactions)} 次`;
+            document.getElementById('feat-avgv').innerText = `₹${Math.round(userFeatures.Avg_Transaction_Value).toLocaleString()}`;
+            document.getElementById('feat-spent').innerText = `₹${(userFeatures.Total_Spent/1000000).toFixed(2)}M`;
+            document.getElementById('feat-actd').innerText = `${Math.round(userFeatures.Active_Days)} 天`;
+            document.getElementById('feat-lastd').innerText = `${Math.round(userFeatures.Last_Transaction_Days_Ago)} 天`;
+            document.getElementById('feat-cashb').innerText = `₹${Math.round(userFeatures.Cashback_Received).toLocaleString()}`;
+            document.getElementById('feat-ticket').innerText = `${Math.round(userFeatures.Support_Tickets_Raised)} 次`;
+            document.getElementById('feat-loyalty').innerText = `${Math.round(userFeatures.Loyalty_Points_Earned)} 點`;
+            document.getElementById('feat-satis').innerText = `${userFeatures.Customer_Satisfaction_Score.toFixed(2)} 分`;
+            document.getElementById('feat-refer').innerText = `${Math.round(userFeatures.Referral_Count)} 人`;
+            document.getElementById('feat-ltv').innerText = `₹${(userFeatures.LTV/1000000).toFixed(2)}M`;
+
+            // 計算幾何距離
+            let dists = {};
+            let minDist = Infinity;
+            let assignedCluster = '';
+
+            for (let k in centroids) {
+                // 手動計算 11 維空間的標準化歐幾里得距離
+                let sumSquare = 0;
+                for (let feat in centroids[k]) {
+                    // 標準化模擬 (減均值除以標準差，這裡為展示真實感使用縮放比例)
+                    let scale = 1;
+                    if (feat === 'Total_Spent' || feat === 'LTV') scale = 1000000;
+                    else if (feat === 'Avg_Transaction_Value') scale = 1000;
+                    else if (feat === 'Loyalty_Points_Earned') scale = 500;
+                    
+                    let diff = (userFeatures[feat] - centroids[k][feat]) / scale;
+                    sumSquare += diff * diff;
+                }
+                let distance = Math.sqrt(sumSquare);
+                dists[k] = distance;
+
+                if (distance < minDist) {
+                    minDist = distance;
+                    assignedCluster = k;
+                }
+            }
+
+            // 更新距離卡片與進度條
+            document.getElementById('val-dist-vip').innerText = dists.vip.toFixed(4);
+            document.getElementById('val-dist-daily').innerText = dists.daily.toFixed(4);
+            document.getElementById('val-dist-sleepy').innerText = dists.sleepy.toFixed(4);
+
+            // 動態拉伸進度條
+            document.getElementById('bar-dist-vip').style.width = `${Math.max(5, Math.min(100, 100 - (dists.vip * 15)))}%`;
+            document.getElementById('bar-dist-daily').style.width = `${Math.max(5, Math.min(100, 100 - (dists.daily * 15)))}%`;
+            document.getElementById('bar-dist-sleepy').style.width = `${Math.max(5, Math.min(100, 100 - (dists.sleepy * 15)))}%`;
+
+            // 高亮最近的質心卡片
+            ['vip', 'daily', 'sleepy'].forEach(k => {
+                const card = document.getElementById(`card-dist-${k}`);
+                if (k === assignedCluster) {
+                    card.className = "dist-card active";
+                } else {
+                    card.className = "dist-card";
+                }
+            });
+
+            // 更新 K-Means 系統標籤顯示
+            const badge = document.getElementById('engine-cluster-badge');
+            if (assignedCluster === 'vip') {
+                badge.innerText = "Cluster 1 (核心 VIP 客群)";
+                badge.className = "cluster-result-val vip";
+            } else if (assignedCluster === 'daily') {
+                badge.innerText = "Cluster 2 (高頻小額流量客)";
+                badge.className = "cluster-result-val daily";
+            } else {
+                badge.innerText = "Cluster 0 (沉睡大額客)";
+                badge.className = "cluster-result-val sleepy";
+            }
+        }
+
+        // 6. 模擬使用者操作觸發
+        function triggerTransaction(amount, type) {
+            if (currentBalance < amount) {
+                alert(`帳戶餘額不足以模擬支付此筆交易！(當前餘額: ₹${currentBalance})`);
+                return;
+            }
+
+            currentBalance -= amount;
+
+            // 動態修改行為特徵向量，實現「實時反饋與模型重算距離」的酷炫效果
+            userFeatures.Total_Spent += amount;
+            userFeatures.Total_Transactions += 1;
+            userFeatures.Last_Transaction_Days_Ago = 0; // 重置流失天數為0
+            userFeatures.Avg_Transaction_Value = userFeatures.Total_Spent / userFeatures.Total_Transactions;
+
+            updateUI();
+
+            addLog(`[用戶模擬] 發起交易：金額 ₹${amount.toLocaleString()}，類型：${type}`);
+
+            // 決策引擎 IF-THEN 行動鏈追蹤
+            if (amount >= 15000) {
+                addLog(`[規則觸發] 交易金額 ≧ ₹15,000 (VIP高價值)。系統自動啟動大額跨境「Khalti 皇家極速通道」！`);
+                addLog(`[系統響應] 成功啟用安全優先多重加密，手續費 ₹0 免除。VIP 滿意度提升至 5.55。`);
+            } else if (type === 'Electricity') {
+                addLog(`[規則觸發] 檢測到大額剛需規費扣繳 (₹12,000)。調用週期剛需制約 API...`);
+                addLog(`[行銷反饋] 自動彈出『智控帳單訂閱扣繳』優惠：設定下期自動扣繳即享 1% 現金折抵！成功活化沉睡帳戶。`);
+            } else {
+                addLog(`[規則觸發] 檢測到日常小額消費。不再撒放盲目補貼。發行點數權利分潤。`);
+            }
+        }
+
+        // 7. 行銷 Banner 動態渲染 (方案一落地)
+        function renderVIPPromo() {
+            const banner = document.getElementById('promo-banner');
+            banner.style.background = "linear-gradient(to right, #172554, #1e293b)";
+            banner.style.border = "1px solid #1e3a8a";
+            banner.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <span class="promo-tag" style="background-color: rgba(59, 130, 246, 0.2); color: #93c5fd;">Premium Unlocked</span>
+                    <span style="font-size: 12px;"></span>
+                </div>
+                <div>
+                    <h5 class="promo-title">一鍵申購 PayTM 數位黃金與共同基金</h5>
+                    <p class="promo-desc">專屬帳戶閒置資金優化，預期年收益 8.5% 起</p>
+                </div>
+            `;
+        }
+
+        function renderDailyPromo() {
+            const banner = document.getElementById('promo-banner');
+            banner.style.background = "linear-gradient(to right, #064e3b, #0f172a)";
+            banner.style.border = "1px solid #065f46";
+            banner.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <span class="promo-tag" style="background-color: rgba(16, 185, 129, 0.2); color: #6ee7b7;">Khalti Life Points</span>
+                    <span style="font-size: 12px;"></span>
+                </div>
+                <div>
+                    <h5 class="promo-title">啟動 PayTM Postpaid 先買後付</h5>
+                    <p class="promo-desc">日常生活掃碼享 30 天零利息分期與大額電商抵扣</p>
+                </div>
+            `;
+        }
+
+        function renderSleepyPromo() {
+            const banner = document.getElementById('promo-banner');
+            banner.style.background = "linear-gradient(to right, #78350f, #0f172a)";
+            banner.style.border = "1px solid #92400e";
+            banner.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <span class="promo-tag" style="background-color: rgba(245, 158, 11, 0.2); color: #fde047;">剛需喚醒優惠</span>
+                    <span style="font-size: 12px;"></span>
+                </div>
+                <div>
+                    <h5 class="promo-title">大額規費專屬：滿萬折百現金折抵券</h5>
+                    <p class="promo-desc">綁定公共電力、房租自動扣繳，下期帳單直接現折 ₹500</p>
+                </div>
+            `;
+        }
+
+        // 8. 決策日誌控制
+        function addLog(message) {
+            const logs = document.getElementById('decision-logs');
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            
+            const item = document.createElement('p');
+            item.className = "log-item";
+            item.innerHTML = `<span class="log-time">[${timeStr}]</span> ${message}`;
+            logs.appendChild(item);
+
+            // 捲動到最底部
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('decision-logs').innerHTML = `<p class="log-time">[系統] 日誌已被手動清除。等待特徵矩陣觸發...</p>`;
+        }
+
+        // ==========================================
+        // 9. MGM 推薦反欺詐沙盒模擬器 (方案二落地)
+        // ==========================================
+        let sandboxSpendCount = 0;
+        let sandboxTotalAmount = 0;
+        let challengeUnlocked = false;
+
+        function openMGMModal() {
+            document.getElementById('mgm-modal').style.display = "flex";
+            addLog("[MGM沙盒] 啟動 Member-Get-Member 推薦挑戰，推薦代碼綁定：老客戶 User B ➡️ 新好友 User C");
+            addLog("[防禦觸發] 依據推薦人負相關(-0.02)防護：雙方 ₹50 獎勵進入【凍結鎖定狀態】，開啟數位軌跡追蹤。");
+        }
+
+        function closeMGMModal() {
+            document.getElementById('mgm-modal').style.display = "none";
+        }
+
+        function simulateFriendSpend(amount, name) {
+            if (challengeUnlocked) {
+                document.getElementById('sandbox-logs').innerText = "[系統] 推薦挑戰已完全解鎖提現！無需重複模擬。";
+                return;
+            }
+
+            sandboxSpendCount += 1;
+            sandboxTotalAmount += amount;
+
+            // 更新 UI
+            document.getElementById('sandbox-progress-text').innerText = `₹ ${sandboxTotalAmount} / 500`;
+            const pct = Math.min(100, (sandboxTotalAmount / 500) * 100);
+            document.getElementById('sandbox-progress-bar').style.width = `${pct}%`;
+
+            // 禁用被點擊的按鈕
+            if (amount === 100) document.getElementById('btn-challenge-1').className = "sandbox-btn disabled";
+            if (amount === 160) document.getElementById('btn-challenge-2').className = "sandbox-btn disabled";
+            if (amount === 320) document.getElementById('btn-challenge-3').className = "sandbox-btn disabled";
+
+            // 印出日誌
+            const logBox = document.getElementById('sandbox-logs');
+            logBox.innerHTML += `<br>➡️ 新好友第 ${sandboxSpendCount} 筆消費：${name} 支付 ₹${amount} 成功。`;
+            logBox.scrollTop = logBox.scrollHeight;
+
+            addLog(`[MGM沙盒] 偵測到新好友數位軌跡更新：${name} ₹${amount} (進度: ${sandboxSpendCount}筆, 累計 ₹${sandboxTotalAmount})`);
+
+            // 檢驗三項指標合約是否完全符合
+            if (sandboxSpendCount >= 3 && sandboxTotalAmount >= 500) {
+                challengeUnlocked = true;
+                const status = document.getElementById('sandbox-status');
+                status.innerText = "獎勵已解鎖";
+                status.className = "sandbox-status-badge unlocked";
+                
+                logBox.innerHTML += `<br><span style="color: #6ee7b7; font-weight: bold;">[合約成立] 通過「14天 / 3筆日常扣款 / 累計滿 ₹500」安全防護驗證！雙方推薦獎勵 ₹50 提現額度已自動解鎖！</span>`;
+                logBox.scrollTop = logBox.scrollHeight;
+
+                addLog("[MGM安全合約解鎖] 恭喜！新好友完成新手活躍挑戰。推薦反套利引擎放行解鎖，雙方 ₹50 獎勵匯出！");
+                addLog("[可用性實務結論] 此代碼有效將「人頭虛假帳戶」完全隔絕在外，每一筆行銷預算都換來了健康的活躍高 LTV 用戶。");
+            }
+        }
+
+        function resetSandbox() {
+            sandboxSpendCount = 0;
+            sandboxTotalAmount = 0;
+            challengeUnlocked = false;
+
+            const status = document.getElementById('sandbox-status');
+            status.innerText = "獎勵凍結中";
+            status.className = "sandbox-status-badge locked";
+            document.getElementById('sandbox-progress-text').innerText = "₹ 0 / 500";
+            document.getElementById('sandbox-progress-bar').style.width = "0%";
+            document.getElementById('sandbox-logs').innerText = "[系統] 沙盒模擬重置成功。等待新好友發起挑戰...";
+
+            // 恢復按鈕樣式
+            document.getElementById('btn-challenge-1').className = "sandbox-btn";
+            document.getElementById('btn-challenge-2').className = "sandbox-btn";
+            document.getElementById('btn-challenge-3').className = "sandbox-btn";
+
+            addLog("[MGM沙盒] 模擬沙盒重置完成。獎勵重回凍結狀態。");
+        }
+    </script>
+</body>
+</html>

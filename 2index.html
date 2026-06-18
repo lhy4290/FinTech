@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>南亞數位金融：MGM 推薦反欺詐決策中台與模擬沙盒</title>
+    <style>
+        /* ==========================================================================
+           100% 獨立離線高階 FinTech 黑色主題 CSS 樣式表 (保證 Live Server 永不跑版)
+           ========================================================================== */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        
+        :root {
+            --bg-main: #0f172a;
+            --bg-card: #1e293b;
+            --bg-darker: #020617;
+            --border-color: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --color-blue: #3b82f6;
+            --color-emerald: #10b981;
+            --color-amber: #f59e0b;
+            --color-pink: #ec4899;
+            --color-rose: #f43f5e;
+            --font-main: 'Noto Sans TC', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 頂部導覽列 */
+        header {
+            background-color: #0f172a;
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-fintech {
+            background-color: var(--color-pink);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.25rem;
+            letter-spacing: 1px;
+        }
+
+        .title-text h1 {
+            font-size: 1.125rem;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 0.5px;
+        }
+
+        .title-text p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            background-color: #1e293b;
+            border: 1px solid #475569;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            color: #cbd5e1;
+        }
+
+        /* 主要分欄佈局 (1400px 最大寬度) */
+        main {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            flex-grow: 1;
+        }
+
+        @media (min-width: 1024px) {
+            main {
+                grid-template-columns: 5fr 7fr;
+            }
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ==========================================================================
+           左側：手機 App 模擬器樣式
+           ========================================================================== */
+        .phone-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .phone-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 350px;
+            aspect-ratio: 9 / 18.5;
+            background-color: #020617;
+            border-radius: 40px;
+            padding: 12px;
+            border: 4px solid #334155;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 22px;
+            background-color: #020617;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 16px;
+            z-index: 20;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 4px;
+        }
+
+        .phone-speaker {
+            width: 60px;
+            height: 4px;
+            background-color: #1e293b;
+            border-radius: 9999px;
+        }
+
+        .phone-screen {
+            width: 100%;
+            height: 100%;
+            background-color: #0f172a;
+            border-radius: 30px;
+            overflow-y: auto;
+            padding: 24px 16px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .phone-screen::-webkit-scrollbar {
+            width: 4px;
+        }
+        .phone-screen::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 4px;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .app-logo {
+            font-weight: bold;
+            color: var(--color-pink);
+        }
+
+        .app-status {
+            background-color: #1e293b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+        }
+
+        /* 推薦凍結卡片 */
+        .referral-lock-card {
+            background: linear-gradient(to bottom right, #300c25, #020617);
+            padding: 16px;
+            border-radius: 16px;
+            border: 1px solid #9d174d;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .referral-lock-card.unlocked {
+            background: linear-gradient(to bottom right, #064e3b, #020617);
+            border-color: var(--color-emerald);
+        }
+
+        .card-status-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-main-val {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-meta-desc {
+            font-size: 11px;
+            color: #cbd5e1;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        /* 14天新手挑戰挑戰 */
+        .timeline-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: 20px 0 8px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .timeline-step-btn {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .timeline-step-btn:hover {
+            background-color: #334155;
+            border-color: #475569;
+        }
+
+        .timeline-step-btn.disabled {
+            background-color: #020617 !important;
+            border-color: #1e293b !important;
+            cursor: not-allowed !important;
+            opacity: 0.4;
+        }
+
+        .step-left {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .step-emoji { font-size: 1.25rem; }
+        .step-title { font-size: 0.75rem; font-weight: bold; color: white; }
+        .step-desc { font-size: 9px; color: var(--text-secondary); margin-top: 1px; }
+        
+        .step-right {
+            text-align: right;
+        }
+        .step-cost { font-size: 0.75rem; font-weight: bold; color: var(--color-pink); }
+        .step-status-text { font-size: 8px; color: var(--text-secondary); text-transform: uppercase; margin-top: 2px;}
+
+        /* 自訂套利測試區 */
+        .custom-fraud-sandbox {
+            background-color: rgba(244, 63, 94, 0.05);
+            border: 1px dashed var(--color-rose);
+            border-radius: 16px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+
+        .sandbox-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--color-rose);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .sandbox-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .btn-fraud-attack {
+            background-color: #4c0519;
+            border: 1px solid var(--color-rose);
+            color: #fecdd3;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn-fraud-attack:hover {
+            background-color: #881337;
+        }
+
+        /* ==========================================================================
+           右側：監控控制台樣式
+           ========================================================================== */
+        .console-column {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .panel-card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px;
+        }
+
+        .panel-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 8px;
+        }
+
+        .panel-card-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--color-pink);
+        }
+
+        .dot-status.locked { background-color: var(--color-pink); animation: alert-pulse 1.5s infinite; }
+        .dot-status.unlocked { background-color: var(--color-emerald); animation: success-pulse 1.5s infinite; }
+        .dot-status.blocked { background-color: var(--color-rose); animation: error-pulse 1.5s infinite; }
+
+        @keyframes alert-pulse {
+            0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4); }
+            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 6px rgba(236, 72, 153, 0); }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+        @keyframes success-pulse {
+            0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+        @keyframes error-pulse {
+            0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 0 0 rgba(244, 63, 144, 0.4); }
+            50% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 6px rgba(244, 63, 144, 0); }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        /* 1. 狀態機 Graph 節點 */
+        .state-flow-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 12px 0;
+        }
+
+        .state-node {
+            background-color: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 10px;
+            font-family: var(--font-code);
+            text-align: center;
+            flex-grow: 1;
+            min-width: 80px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .state-node.active {
+            border-color: var(--color-pink);
+            background-color: #300c25;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.3);
+        }
+
+        .state-node.success-active {
+            border-color: var(--color-emerald);
+            background-color: #064e3b;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+        }
+
+        .state-node.blocked-active {
+            border-color: var(--color-rose);
+            background-color: #4c0519;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 0 10px rgba(244, 63, 94, 0.3);
+        }
+
+        .state-arrow {
+            color: var(--text-secondary);
+            font-family: var(--font-code);
+            font-size: 12px;
+        }
+
+        /* 2. 規則查核監控器 */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        @media (min-width: 640px) {
+            .rules-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .rule-card {
+            background-color: var(--bg-darker);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .rule-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .rule-desc {
+            font-size: 10px;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .rule-status-badge {
+            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .rule-status-badge.pending { background-color: #1e293b; color: #94a3b8; }
+        .rule-status-badge.passed { background-color: #064e3b; color: #6ee7b7; }
+        .rule-status-badge.failed { background-color: #4c0519; color: #fecdd3; }
+
+        /* 即時進度條微調 */
+        .rule-progress-bar {
+            width: 100%;
+            background-color: #334155;
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .rule-progress-fill {
+            height: 100%;
+            background-color: var(--color-pink);
+            transition: all 0.3s ease;
+            width: 0%;
+        }
+
+        /* 3. 系統日誌與實時 API Payload */
+        .log-terminal-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .log-terminal-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .terminal-box {
+            background-color: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            height: 240px;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+            font-family: var(--font-code);
+        }
+
+        .terminal-body {
+            flex-grow: 1;
+            overflow-y: auto;
+            font-family: var(--font-code);
+            font-size: 9.5px;
+            color: #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .terminal-body::-webkit-scrollbar {
+            width: 4px;
+        }
+        .terminal-body::-webkit-scrollbar-thumb {
+            background-color: #1e293b;
+            border-radius: 4px;
+        }
+
+        .btn-clear {
+            background: none;
+            border: none;
+            color: #475569;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        .btn-clear:hover { color: var(--text-secondary); }
+
+        /* JSON 高亮 */
+        .json-key { color: #f472b6; }
+        .json-string { color: #34d399; }
+        .json-number { color: #fbbf24; }
+        .json-boolean { color: #60a5fa; }
+
+        /* 頁腳 */
+        footer {
+            background-color: #020617;
+            border-top: 1px solid #0f172a;
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 11px;
+            color: #475569;
+        }
+    </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- 頂部導覽列 -->
+    <header>
+        <div class="header-container">
+            <div class="logo-area">
+                <div class="badge-fintech">MGM</div>
+                <div class="title-text">
+                    <h1>南亞數位錢包：MGM 推薦反欺詐防禦引擎（Referral Anti-Fraud Engine）</h1>
+                    <p>探勘結果重構 —— 推薦人數與 LTV 負相關 (-0.02) 之實務解決方案原型</p>
+                </div>
+            </div>
+            <div class="status-badge">
+                技術執行力展示 • <span style="color: var(--color-emerald); font-weight: 600;">防禦策略：100%</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要操作區 -->
+    <main>
+        
+        <!-- 左側：手機 App 模擬器區 -->
+        <section class="phone-column">
+            <h2 class="section-title">【前台模擬】新朋友 User C 的 14 天日常挑戰</h2>
+            
+            <!-- 模擬手機外殼 -->
+            <div class="phone-wrapper">
+                <!-- 手機頂部聽筒 -->
+                <div class="phone-notch">
+                    <div class="phone-speaker"></div>
+                </div>
+
+                <!-- 手機畫面內部 -->
+                <div id="phone-screen" class="phone-screen">
+                    
+                    <!-- App 頂部狀態列 -->
+                    <div class="app-header">
+                        <span id="app-logo" class="app-logo">Khalti 🇳🇵 / PayTM 🇮🇳</span>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span class="app-status">MGM 專用金流</span>
+                        </div>
+                    </div>
+
+                    <!-- 推薦凍結卡片與餘額展示 -->
+                    <div style="margin-top: 8px;">
+                        <div class="referral-lock-card" id="ref-status-card">
+                            <div class="card-status-title">
+                                <span>MGM 好友推薦獎勵餘額</span>
+                                <span id="display-status-badge" style="color: var(--color-pink); font-weight: bold;">狀態：凍結中</span>
+                            </div>
+                            <h3 class="card-main-val" id="display-reward-value">
+                                ₹ 0.00
+                            </h3>
+                            <p class="card-meta-desc" id="display-card-desc">
+                                新朋友 User C 已透過 User B 的推薦碼註冊成功！₹ 50 獎勵已預先撥付入帳，目前處於<b>凍結鎖定狀態</b>。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 新手挑戰步驟 -->
+                    <div>
+                        <div class="timeline-label">
+                            <span>新手 14 天日常行為挑戰進度</span>
+                            <span id="display-overall-progress" style="font-weight: bold; color: var(--color-pink);">0 / 3 筆 | ₹ 0</span>
+                        </div>
+                        
+                        <div class="timeline-container">
+                            <!-- 步驟 1 -->
+                            <button id="step-btn-1" onclick="executeStep(1, 100, '🚌 Day 2: 搭乘德里地鐵 (UPI)')" class="timeline-step-btn">
+                                <div class="step-left">
+                                    <span class="step-emoji"></span>
+                                    <div>
+                                        <h4 class="step-title">Day 2: 剛需搭乘地鐵</h4>
+                                        <p class="step-desc">使用 UPI 掃碼付款搭車</p>
+                                    </div>
+                                </div>
+                                <div class="step-right">
+                                    <span class="step-cost">₹ 100</span>
+                                    <p id="step-status-1" class="step-status-text">未完成</p>
+                                </div>
+                            </button>
+
+                            <!-- 步驟 2 -->
+                            <button id="step-btn-2" onclick="executeStep(2, 160, '🏪 Day 5: 合作超商買午餐 (Wallet)')" class="timeline-step-btn">
+                                <div class="step-left">
+                                    <span class="step-emoji"></span>
+                                    <div>
+                                        <h4 class="step-title">Day 5: 合作超商小額消費</h4>
+                                        <p class="step-desc">掃碼錢包支付午餐費用</p>
+                                    </div>
+                                </div>
+                                <div class="step-right">
+                                    <span class="step-cost">₹ 160</span>
+                                    <p id="step-status-2" class="step-status-text">未完成</p>
+                                </div>
+                            </button>
+
+                            <!-- 步驟 3 -->
+                            <button id="step-btn-3" onclick="executeStep(3, 320, '📶 Day 8: 手機通話網速儲值 (Wallet)')" class="timeline-step-btn">
+                                <div class="step-left">
+                                    <span class="step-emoji"></span>
+                                    <div>
+                                        <h4 class="step-title">Day 8: 通話網速儲值</h4>
+                                        <p class="step-desc">線上支付電信費獲取加碼</p>
+                                    </div>
+                                </div>
+                                <div class="step-right">
+                                    <span class="step-cost">₹ 320</span>
+                                    <p id="step-status-3" class="step-status-text">未完成</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 惡意套利沙盒觸發 -->
+                    <div class="custom-fraud-sandbox">
+                        <div class="sandbox-title">欺詐套利模擬</div>
+                        <div class="sandbox-actions">
+                            <button id="btn-fraud-run" onclick="triggerFraudAttack()" class="btn-fraud-attack">
+                                模擬殭屍人頭套利
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 手機底部 -->
+                    <div class="phone-footer">
+                        <span>● 好友挑戰專頁</span>
+                        <span onclick="resetEngine()" style="cursor: pointer; color: var(--color-blue);">重置系統</span>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 右側：監控控制台區 -->
+        <section class="console-column">
+            
+            <!-- 1. 狀態機 State Machine 實時圖譜 -->
+            <div class="panel-card">
+                <div class="panel-card-header" style="border: none; padding-bottom: 0;">
+                    <h3 class="panel-card-title">
+                        <span id="indicator-dot" class="dot-status locked"></span>
+                        一、 MGM 引擎分階狀態機實時追蹤 (Referral State Machine)
+                    </h3>
+                </div>
+                <div class="state-flow-container">
+                    <div id="state-init" class="state-node">INIT<br>推薦註冊</div>
+                    <span class="state-arrow">➔</span>
+                    <div id="state-locked" class="state-node active">LOCKED<br>獎勵凍結中</div>
+                    <span class="state-arrow">➔</span>
+                    <div id="state-tracking" class="state-node">TRACKING<br>行為追蹤</div>
+                    <span class="state-arrow">➔</span>
+                    <div id="state-unlocked" class="state-node">UNLOCKED<br>解鎖撥付</div>
+                </div>
+            </div>
+
+            <!-- 2. 防套利核心規則查核監控器 -->
+            <div class="panel-card">
+                <div class="panel-card-header">
+                    <h3 class="panel-card-title">二、 決策中台：防套利核心規則查核監控器 (Fraud Rules Inspector)</h3>
+                </div>
+                <div class="rules-grid">
+                    <!-- 規則 1 -->
+                    <div class="rule-card" id="card-rule-fingerprint">
+                        <div class="rule-card-top">
+                            <span>1. 設備指紋碰撞校驗</span>
+                            <span id="badge-rule-fingerprint" class="rule-status-badge passed">PASSED</span>
+                        </div>
+                        <p class="rule-desc">檢查推薦人與被推薦人之硬體 MAC 位址、IMEI 指紋是否相同，防止使用同一台手機重複註冊套利。</p>
+                    </div>
+                    <!-- 規則 2 -->
+                    <div class="rule-card" id="card-rule-velocity">
+                        <div class="rule-card-top">
+                            <span>2. 註冊極速流失檢測</span>
+                            <span id="badge-rule-velocity" class="rule-status-badge passed">PASSED</span>
+                        </div>
+                        <p class="rule-desc">校驗新戶註冊到嘗試提現的時間差是否低於 10 秒，過濾利用機器人腳本自動化註冊提現。</p>
+                    </div>
+                    <!-- 規則 3 -->
+                    <div class="rule-card" id="card-rule-txcount">
+                        <div class="rule-card-top">
+                            <span>3. 新手日常剛需次數</span>
+                            <span id="badge-rule-txcount" class="rule-status-badge pending">PENDING</span>
+                        </div>
+                        <p class="rule-desc">追蹤新戶於 14 天內是否完成 3 筆日常剛需消費（如 UPI 地鐵扣款、生活超商掃碼）。</p>
+                        <div class="rule-progress-bar">
+                            <div id="progress-rule-txcount" class="rule-progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    <!-- 規則 4 -->
+                    <div class="rule-card" id="card-rule-amount">
+                        <div class="rule-card-top">
+                            <span>4. 新戶小額消費累計</span>
+                            <span id="badge-rule-amount" class="rule-status-badge pending">PENDING</span>
+                        </div>
+                        <p class="rule-desc">檢測新戶日常剛需消費之累計金額是否大於等於限額門檻（₹ 500），防範低價值殭屍戶。</p>
+                        <div class="rule-progress-bar">
+                            <div id="progress-rule-amount" class="rule-progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 後端 REST API 與即時資料日誌 -->
+            <div class="panel-card" style="flex-grow: 1;">
+                <div class="panel-card-header" style="border: none; padding-bottom: 0;">
+                    <h3 class="panel-card-title">三、 系統日誌與實時 API Payloads 終端機</h3>
+                </div>
+                <div class="log-terminal-container">
+                    <!-- 左終端機：系統事件日誌 -->
+                    <div class="terminal-box">
+                        <div class="terminal-header">
+                            <span>SYSTEM_EVENT_LOG</span>
+                            <button onclick="clearSystemLog()" class="btn-clear">Clear</button>
+                        </div>
+                        <div id="system-log-body" class="terminal-body">
+                            <!-- 動態注入 -->
+                        </div>
+                    </div>
+                    <!-- 右終端機：API JSON Payload -->
+                    <div class="terminal-box">
+                        <div class="terminal-header">
+                            <span>REST_API_JSON_STREAM</span>
+                            <button onclick="clearApiLog()" class="btn-clear">Clear</button>
+                        </div>
+                        <div id="api-log-body" class="terminal-body" style="color: #60a5fa;">
+                            <!-- 動態高亮 JSON -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- 頁腳 -->
+    <footer>
+        南亞數位錢包學術與商務研究專案成員：劉姮妤、黃齡瑋、蘇歆倫 • 2026 期末發表專用
+    </footer>
+
+    <!-- MGM 反欺詐引擎與即時數據綁定 JavaScript 控制核心 -->
+    <script>
+        // 核心營運與防套利狀態機狀態
+        let currentMGMState = 'LOCKED'; // LOCKED, TRACKING, UNLOCKED, BLOCKED
+        let transactionCount = 0;
+        let cumulativeSpent = 0;
+        let stepsExecuted = { 1: false, 2: false, 3: false };
+
+        window.onload = function() {
+            resetEngine();
+        };
+
+        // 1. 初始化與重置整個決策引擎
+        function resetEngine() {
+            currentMGMState = 'LOCKED';
+            transactionCount = 0;
+            cumulativeSpent = 0;
+            stepsExecuted = { 1: false, 2: false, 3: false };
+
+            // 重置手機端畫面
+            document.getElementById('display-status-badge').innerText = "狀態：凍結中";
+            document.getElementById('display-status-badge').style.color = "var(--color-pink)";
+            document.getElementById('display-reward-value').innerText = "₹ 0.00";
+            document.getElementById('display-reward-value').style.color = "white";
+            document.getElementById('ref-status-card').className = "referral-lock-card";
+            document.getElementById('display-card-desc').innerHTML = "新朋友 User C 已透過 User B 的推薦碼註冊成功！₹ 50 獎勵已預先撥付入帳，目前處於<b>凍結鎖定狀態</b>。";
+            document.getElementById('display-overall-progress').innerText = "0 / 3 筆 | ₹ 0";
+            document.getElementById('display-overall-progress').style.color = "var(--color-pink)";
+
+            // 恢復三個挑戰按鈕的可點擊狀態
+            for (let i = 1; i <= 3; i++) {
+                const btn = document.getElementById(`step-btn-${i}`);
+                btn.className = "timeline-step-btn";
+                document.getElementById(`step-status-${i}`).innerText = "未完成";
+                document.getElementById(`step-status-${i}`).style.color = "var(--text-secondary)";
+            }
+
+            // 恢復殭屍套利按鈕
+            document.getElementById('btn-fraud-run').className = "btn-fraud-attack";
+            document.getElementById('btn-fraud-run').innerText = "註冊後即時套現";
+
+            // 重置狀態機視覺高亮
+            updateStateFlowVisual();
+
+            // 重置規則監控卡片
+            resetRuleCards();
+
+            // 重置系統日誌
+            clearSystemLog();
+            clearApiLog();
+
+            addSystemLog("K-Means 決策引擎啟動。手肘法設定 K=3 最優客群面貌已定錨。");
+            addSystemLog("[防護觸發] 推薦人負相關(-0.02)防禦規則啟動：MGM 狀態由『INIT』躍遷至『LOCKED』。");
+            
+            // 觸發註冊 API JSON 流
+            pushApiJson("POST", "/api/v1/referral/register", {
+                referrer_uid: "cust_0320_user_b",
+                referee_uid: "cust_6994_user_c",
+                referral_code: "PAYTM_MGM_6994",
+                payout_reward: 50.00,
+                referral_state: "LOCKED",
+                device_fingerprint: "mac_00:1a:2b:3c:4d:5e_unique_coll_0",
+                registration_ip: "103.21.164.44",
+                risk_score: 12.5
+            });
+        }
+
+        // 2. 挑戰步驟按鈕點擊執行
+        function executeStep(stepId, cost, logLabel) {
+            if (currentMGMState === 'BLOCKED' || currentMGMState === 'UNLOCKED') return;
+            if (stepsExecuted[stepId]) return;
+
+            stepsExecuted[stepId] = true;
+            transactionCount += 1;
+            cumulativeSpent += cost;
+
+            // 切換為 TRACKING 狀態
+            if (currentMGMState === 'LOCKED') {
+                currentMGMState = 'TRACKING';
+                updateStateFlowVisual();
+                addSystemLog("[狀態躍遷] 新朋友 User C 偵測到第一筆有效剛需軌跡，狀態切換至：『TRACKING (行為追蹤中)』");
+            }
+
+            // 更新手機步驟按鈕 UI
+            const btn = document.getElementById(`step-btn-${stepId}`);
+            btn.className = "timeline-step-btn disabled";
+            const statusLabel = document.getElementById(`step-status-${stepId}`);
+            statusLabel.innerText = "已完成";
+            statusLabel.style.color = "var(--color-emerald)";
+
+            // 更新總進度
+            document.getElementById('display-overall-progress').innerText = `${transactionCount} / 3 筆 | ₹ ${cumulativeSpent}`;
+
+            addSystemLog(`[軌跡記錄] ${logLabel} 扣款成功。新戶消費筆數累計：${transactionCount} 筆，金額：₹ ${cumulativeSpent}。`);
+
+            // 推送消費 API JSON
+            pushApiJson("POST", "/api/v1/transactions/log", {
+                transaction_id: "tx_mgm_" + Math.floor(Math.random()*100000),
+                user_id: "cust_6994_user_c",
+                amount: cost,
+                currency: "Rupee",
+                payment_method: stepId === 1 ? "UPI" : "Wallet Balance",
+                merchant_class: stepId === 1 ? "Transportation (Metro)" : (stepId === 2 ? "Retail (Supermarket)" : "Telecom"),
+                timestamp: new Date().toISOString()
+            });
+
+            // 觸發規則與進度條即時更新
+            updateRulesProgress();
+
+            // 核心演算法：檢查新手合約是否完全符合
+            checkMGMEligibility();
+        }
+
+        // 3. 實時檢查新手合約是否完全滿足解鎖條件
+        function checkMGMEligibility() {
+            if (transactionCount >= 3 && cumulativeSpent >= 500) {
+                currentMGMState = 'UNLOCKED';
+                updateStateFlowVisual();
+
+                // 更新前台手機卡片為「解鎖成功」
+                document.getElementById('display-status-badge').innerText = "狀態：已解鎖";
+                document.getElementById('display-status-badge').style.color = "var(--color-emerald)";
+                document.getElementById('display-reward-value').innerText = "₹ 50.00";
+                document.getElementById('display-reward-value').style.color = "var(--color-emerald)";
+                document.getElementById('ref-status-card').className = "referral-lock-card unlocked";
+                document.getElementById('display-overall-progress').style.color = "var(--color-emerald)";
+                document.getElementById('display-card-desc').innerHTML = "<b>挑戰大獲全勝！</b>新朋友 User C 已完成日常剛需考驗。反套利引擎判定合約成立，₹ 50 獎勵已<b>秒級解鎖並匯入提現帳戶</b>！";
+
+                addSystemLog("[MGM安全解鎖] 恭喜！新朋友已達成「14天 / 3筆日常扣款 / 累計滿 ₹500」安全防護門檻！");
+                addSystemLog("[行銷利潤釋放] API 觸發帳務系統，老客戶 User B 與新朋友 User C 獎勵同時解鎖！");
+
+                // 推送解鎖 API JSON
+                pushApiJson("PUT", "/api/v1/payout/unlock", {
+                    referrer_uid: "cust_0320_user_b",
+                    referee_uid: "cust_6994_user_c",
+                    challenge_achieved_duration_days: 8.0,
+                    final_tx_count: transactionCount,
+                    final_cumulative_spent: cumulativeSpent,
+                    payout_status: "SUCCESS_DISBURSED",
+                    unlock_webhook_signature: "sha256_9c28af8d31aef..."
+                });
+            }
+        }
+
+        // 4. 惡意套利沙盒觸發：殭屍人頭套利行為
+        function triggerFraudAttack() {
+            if (currentMGMState === 'UNLOCKED' || currentMGMState === 'BLOCKED') return;
+
+            currentMGMState = 'BLOCKED';
+            updateStateFlowVisual();
+
+            // 更新手機端卡片為「封禁提示」
+            document.getElementById('display-status-badge').innerText = "狀態：交易封禁";
+            document.getElementById('display-status-badge').style.color = "var(--color-rose)";
+            document.getElementById('display-reward-value').innerText = "₹ 0.00";
+            document.getElementById('display-reward-value').style.color = "var(--color-rose)";
+            document.getElementById('ref-status-card').className = "referral-lock-card";
+            document.getElementById('ref-status-card').style.borderColor = "var(--color-rose)";
+            document.getElementById('ref-status-card').style.background = "linear-gradient(to bottom right, #4c0519, #020617)";
+            document.getElementById('display-card-desc').innerHTML = "<b>[風控警報] 檢測到異常欺詐套利！</b>此新帳戶註冊極速申請套現，且無任何日常剛需扣款軌跡。<b>反套利防禦系統已啟動強行凍結！</b>";
+
+            // 禁用挑戰按鈕
+            for (let i = 1; i <= 3; i++) {
+                document.getElementById(`step-btn-${i}`).className = "timeline-step-btn disabled";
+            }
+            document.getElementById('btn-fraud-run').className = "btn-fraud-attack disabled";
+            document.getElementById('btn-fraud-run').innerText = "欺詐已封鎖";
+
+            // 標示規則損壞
+            document.getElementById('card-rule-velocity').style.borderColor = "var(--color-rose)";
+            document.getElementById('badge-rule-velocity').innerText = "FAILED";
+            document.getElementById('badge-rule-velocity').className = "rule-status-badge failed";
+
+            document.getElementById('card-rule-txcount').style.borderColor = "var(--color-rose)";
+            document.getElementById('badge-rule-txcount').innerText = "FAILED";
+            document.getElementById('badge-rule-txcount').className = "rule-status-badge failed";
+
+            document.getElementById('card-rule-amount').style.borderColor = "var(--color-rose)";
+            document.getElementById('badge-rule-amount').innerText = "FAILED";
+            document.getElementById('badge-rule-amount').className = "rule-status-badge failed";
+
+            addSystemLog("[風控警報] 偵測到用戶嘗試直接在「未發起任何日常生活交易」前，極速套取 ₹50 開戶金！");
+            addSystemLog("[防禦攔截] 註冊至申請提現時間差 < 10秒 (規則2失效) 且無消費行為 (規則3/4失效)。觸發永久封禁！");
+
+            // 推送欺詐檢測 API JSON
+            pushApiJson("POST", "/api/v1/fraud/flag", {
+                attacker_referral_code: "PAYTM_MGM_6994",
+                risk_score: 98.5,
+                failure_triggers: [
+                    "VELOCITY_LIMIT_EXCEEDED",
+                    "ZERO_DAILY_TRANSACTION_ACTIVITY",
+                    "INSTANT_CASHOUT_ATTEMPT"
+                ],
+                assigned_trust_level: "LOW_FRAUD_PROHIBITED",
+                mitigation_action: "SUSPEND_REWARD_AND_BLOCK_WALLET_CASHOUT"
+            });
+        }
+
+        // ==========================================
+        // 5. 視覺排版與控制台輔助更新邏輯
+        // ==========================================
+        function updateStateFlowVisual() {
+            // 清除所有狀態節點
+            ['init', 'locked', 'tracking', 'unlocked'].forEach(s => {
+                document.getElementById(`state-${s}`).className = "state-node";
+            });
+
+            const dot = document.getElementById('indicator-dot');
+
+            if (currentMGMState === 'LOCKED') {
+                document.getElementById('state-locked').className = "state-node active";
+                dot.className = "dot-status locked";
+            } else if (currentMGMState === 'TRACKING') {
+                document.getElementById('state-tracking').className = "state-node active";
+                dot.className = "dot-status locked";
+            } else if (currentMGMState === 'UNLOCKED') {
+                document.getElementById('state-unlocked').className = "state-node success-active";
+                dot.className = "dot-status unlocked";
+            } else if (currentMGMState === 'BLOCKED') {
+                document.getElementById('state-locked').className = "state-node blocked-active";
+                dot.className = "dot-status blocked";
+            }
+        }
+
+        function updateRulesProgress() {
+            // 更新進度條 1
+            const txPct = Math.min(100, (transactionCount / 3) * 100);
+            document.getElementById('progress-rule-txcount').style.width = `${txPct}%`;
+            if (transactionCount >= 3) {
+                document.getElementById('badge-rule-txcount').innerText = "PASSED";
+                document.getElementById('badge-rule-txcount').className = "rule-status-badge passed";
+                document.getElementById('card-rule-txcount').style.borderColor = "var(--color-emerald)";
+            } else {
+                document.getElementById('badge-rule-txcount').innerText = "PENDING";
+                document.getElementById('badge-rule-txcount').className = "rule-status-badge pending";
+            }
+
+            // 更新進度條 2
+            const amtPct = Math.min(100, (cumulativeSpent / 500) * 100);
+            document.getElementById('progress-rule-amount').style.width = `${amtPct}%`;
+            if (cumulativeSpent >= 500) {
+                document.getElementById('badge-rule-amount').innerText = "PASSED";
+                document.getElementById('badge-rule-amount').className = "rule-status-badge passed";
+                document.getElementById('card-rule-amount').style.borderColor = "var(--color-emerald)";
+            } else {
+                document.getElementById('badge-rule-amount').innerText = "PENDING";
+                document.getElementById('badge-rule-amount').className = "rule-status-badge pending";
+            }
+        }
+
+        function resetRuleCards() {
+            ['fingerprint', 'velocity', 'txcount', 'amount'].forEach(rule => {
+                const card = document.getElementById(`card-rule-${rule}`);
+                const badge = document.getElementById(`badge-rule-${rule}`);
+                card.style.borderColor = "rgba(255, 255, 255, 0.03)";
+                
+                if (rule === 'fingerprint' || rule === 'velocity') {
+                    badge.innerText = "PASSED";
+                    badge.className = "rule-status-badge passed";
+                } else {
+                    badge.innerText = "PENDING";
+                    badge.className = "rule-status-badge pending";
+                    document.getElementById(`progress-rule-${rule}`).style.width = "0%";
+                }
+            });
+        }
+
+        function addSystemLog(message) {
+            const body = document.getElementById('system-log-body');
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            
+            const p = document.createElement('p');
+            p.className = "log-item";
+            p.innerHTML = `<span class="log-time">[${timeStr}]</span> ${message}`;
+            body.appendChild(p);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function pushApiJson(method, endpoint, payload) {
+            const body = document.getElementById('api-log-body');
+            const now = new Date();
+            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            
+            const divider = document.createElement('div');
+            divider.style.borderTop = "1px dashed #1e293b";
+            divider.style.margin = "8px 0";
+            body.appendChild(divider);
+
+            const title = document.createElement('p');
+            title.style.fontWeight = "bold";
+            title.innerHTML = `<span class="log-time">[${timeStr}]</span> <span style="color: #f472b6;">${method}</span> <span style="color: #60a5fa;">${endpoint}</span>`;
+            body.appendChild(title);
+
+            // 格式化高亮 JSON 欄位與數值
+            let jsonString = JSON.stringify(payload, null, 2);
+            jsonString = jsonString.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            jsonString = jsonString.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+
+            const pre = document.createElement('pre');
+            pre.style.marginTop = "4px";
+            pre.style.lineHeight = "1.3";
+            pre.innerHTML = jsonString;
+            body.appendChild(pre);
+
+            body.scrollTop = body.scrollHeight;
+        }
+
+        function clearSystemLog() {
+            document.getElementById('system-log-body').innerHTML = `<p class="log-time">[系統] 日誌已被手動清除。等待行為軌跡觸發...</p>`;
+        }
+
+        function clearApiLog() {
+            document.getElementById('api-log-body').innerHTML = `<p class="log-time">[API] API Stream 歷史快取已被手動清除...</p>`;
+        }
+    </script>
+</body>
+</html>
