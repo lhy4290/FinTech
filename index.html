@@ -942,35 +942,35 @@
                     </div>
                     <div class="cluster-result-box">
                         <span class="cluster-result-label">K-Means 分配標籤 (argmin)</span>
-                        <div id="engine-cluster-badge" class="cluster-result-val vip">Cluster 1 (核心 VIP 客群)</div>
+                        <div id="engine-cluster-badge" class="cluster-result-val vip">Cluster 2 (核心 VIP 客群)</div>
                     </div>
                 </div>
                 <!-- 距離條 -->
                 <div class="dist-col-right">
-                    <!-- Cluster 1 VIP -->
+                    <!-- Cluster 2 VIP -->
                     <div class="dist-card" id="card-dist-vip">
                         <div class="dist-info-row">
-                            <span style="font-weight: bold;">到 Cluster 1 質心 (VIP) 的距離:</span>
+                            <span style="font-weight: bold;">到 Cluster 2 質心 (VIP) 的距離:</span>
                             <span id="val-dist-vip" style="color: var(--color-blue); font-weight: bold; font-family: var(--font-code);">0.0000</span>
                         </div>
                         <div class="dist-bar-bg">
                             <div id="bar-dist-vip" class="dist-bar-fill vip" style="width: 5%"></div>
                         </div>
                     </div>
-                    <!-- Cluster 2 Daily -->
+                    <!-- Cluster 0 Daily -->
                     <div class="dist-card" id="card-dist-daily">
                         <div class="dist-info-row">
-                            <span style="font-weight: bold;">到 Cluster 2 質心 (日常) 的距離:</span>
+                            <span style="font-weight: bold;">到 Cluster 0 質心 (日常) 的距離:</span>
                             <span id="val-dist-daily" style="color: var(--text-secondary); font-weight: bold; font-family: var(--font-code);">4.5218</span>
                         </div>
                         <div class="dist-bar-bg">
                             <div id="bar-dist-daily" class="dist-bar-fill daily" style="width: 75%"></div>
                         </div>
                     </div>
-                    <!-- Cluster 0 Churn -->
+                    <!-- Cluster 1 Churn -->
                     <div class="dist-card" id="card-dist-sleepy">
                         <div class="dist-info-row">
-                            <span style="font-weight: bold;">到 Cluster 0 質心 (沉睡) 的距離:</span>
+                            <span style="font-weight: bold;">到 Cluster 1 質心 (沉睡) 的距離:</span>
                             <span id="val-dist-sleepy" style="color: var(--text-secondary); font-weight: bold; font-family: var(--font-code);">6.1287</span>
                         </div>
                         <div class="dist-bar-bg">
@@ -1066,19 +1066,19 @@
     <script>
         // 1. 三個典型客群在 11 維全特徵空間中的 K-Means 質心數據 (來自第二組真實分群結果)
         const centroids = {
-            sleepy: { // Cluster 0
+            sleepy: { // Cluster 1
                 Age: 41.38, Total_Transactions: 204.30, Avg_Transaction_Value: 10216.18, 
                 Total_Spent: 2157768.28, Active_Days: 179.81, Last_Transaction_Days_Ago: 186.75, 
                 Loyalty_Points_Earned: 1100, Referral_Count: 5, Cashback_Received: 2480.57, 
                 Support_Tickets_Raised: 8, Customer_Satisfaction_Score: 5.46, LTV: 227478.83
             },
-            vip: { // Cluster 1
+            vip: { // Cluster 2
                 Age: 42.53, Total_Transactions: 721.00, Avg_Transaction_Value: 15059.79, 
                 Total_Spent: 10682750.30, Active_Days: 179.72, Last_Transaction_Days_Ago: 181.38, 
                 Loyalty_Points_Earned: 4500, Referral_Count: 20, Cashback_Received: 2481.97, 
                 Support_Tickets_Raised: 2, Customer_Satisfaction_Score: 5.55, LTV: 1080007.77
             },
-            daily: { // Cluster 2
+            daily: { // Cluster 0
                 Age: 44.31, Total_Transactions: 662.40, Avg_Transaction_Value: 4676.53, 
                 Total_Spent: 3097212.80, Active_Days: 186.74, Last_Transaction_Days_Ago: 182.58, 
                 Loyalty_Points_Earned: 1500, Referral_Count: 3, Cashback_Received: 2530.62, 
@@ -1226,13 +1226,13 @@
             // 更新 K-Means 系統標籤顯示
             const badge = document.getElementById('engine-cluster-badge');
             if (assignedCluster === 'vip') {
-                badge.innerText = "Cluster 1 (核心 VIP 客群)";
+                badge.innerText = "Cluster 2 (核心 VIP 客群)";
                 badge.className = "cluster-result-val vip";
             } else if (assignedCluster === 'daily') {
-                badge.innerText = "Cluster 2 (高頻小額流量客)";
+                badge.innerText = "Cluster 0 (高頻小額流量客)";
                 badge.className = "cluster-result-val daily";
             } else {
-                badge.innerText = "Cluster 0 (沉睡大額客)";
+                badge.innerText = "Cluster 1 (沉睡大額客)";
                 badge.className = "cluster-result-val sleepy";
             }
         }
